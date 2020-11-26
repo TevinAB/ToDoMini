@@ -1,5 +1,3 @@
-//Remember to refactor..
-
 //Selectors
 let todoInput = document.querySelector('#todo-input');
 let todoBtn = document.querySelector('#todo-btn');
@@ -67,7 +65,7 @@ function completeItem(event) {
   let item = event.target;
   if (item.classList.contains('complete-btn')) {
     item.parentElement.classList.add('completed');
-    //update a state on that element
+    
     let sibText = item.previousSibling.innerText;
     let save = fetchSave();
     save.forEach(e=>{
@@ -76,7 +74,6 @@ function completeItem(event) {
         }
     });
     localStorage.setItem(fileName, JSON.stringify(save));
-    //update the ui to reflect that
   }
 }
 
@@ -145,8 +142,4 @@ function initUI() {
   save.forEach((e) => {
     generateElement(e);
   });
-}
-
-function updateUI(){
-    //
 }

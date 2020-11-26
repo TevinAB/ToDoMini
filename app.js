@@ -12,15 +12,16 @@ todoBtn.addEventListener('click', addItem);
 list.addEventListener('click', removeItem);
 list.addEventListener('click', completeItem);
 filter.addEventListener('change', filterTodo);
-document.addEventListener('DOMContentLoaded', updateUI);
+document.addEventListener('DOMContentLoaded', initUI);
 
 //Functions
 function addItem(event) {
   event.preventDefault();
-  if (todoInput.value.trim() !== '') {
-    generateElement(todoInput.value);
+  if (todoInput.value.trim() !== '' && !isDuplicate(todoInput.value)) {
+    let obj = {text: todoInput.value.trim(),completed: false};
+    generateElement(obj);
     //Add to local storage
-    saveToDo(todoInput.value);
+    saveToDo(obj);
     todoInput.value = '';
   } else {
     //add an alert element
@@ -39,7 +40,7 @@ function removeItem(event) {
       fileName,
       JSON.stringify(
         save.filter((e) => {
-          return e !== item.parentElement.innerText;
+          return e.text !== item.parentElement.innerText;
         })
       )
     );
@@ -52,10 +53,30 @@ function fetchSave() {
     : JSON.parse(localStorage.getItem(fileName));
 }
 
+function isDuplicate(text){
+    let target = text.toLowerCase().trim();
+    let arr = fetchSave();
+    for(let i = 0; i < arr.length; i++){
+        if(arr[i]['text'].toLowerCase() === target)
+            return true;
+    }
+    return false;
+}
+
 function completeItem(event) {
   let item = event.target;
   if (item.classList.contains('complete-btn')) {
     item.parentElement.classList.add('completed');
+    //update a state on that element
+    let sibText = item.previousSibling.innerText;
+    let save = fetchSave();
+    save.forEach(e=>{
+        if(e.text === sibText){
+            e.completed = true;
+        }
+    });
+    localStorage.setItem(fileName, JSON.stringify(save));
+    //update the ui to reflect that
   }
 }
 
@@ -88,20 +109,22 @@ function filterTodo() {
   }
 }
 
-//modify to accept an object
-function saveToDo(todo) {
+function saveToDo(obj) {
   let save = fetchSave();
-  save.push(todo);
+  save.push(obj);
   localStorage.setItem(fileName, JSON.stringify(save));
 }
 
-function generateElement(text) {
+function generateElement(obj) {
   let div = document.createElement('div');
   div.classList.add('todo');
 
   let li = document.createElement('li');
-  li.innerText = text;
+  li.innerText = obj.text;
   li.classList.add('todo-item');
+  if(obj.completed){
+      div.classList.add('completed');
+  }
 
   let checkBtn = document.createElement('button');
   checkBtn.innerHTML = '<i class="fas fa-check ignore"></i>';
@@ -117,9 +140,13 @@ function generateElement(text) {
   list.appendChild(div);
 }
 
-function updateUI() {
+function initUI() {
   let save = fetchSave();
-  save.forEach((todo) => {
-    generateElement(todo);
+  save.forEach((e) => {
+    generateElement(e);
   });
+}
+
+function updateUI(){
+    //
 }

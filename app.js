@@ -5,6 +5,7 @@ let todoInput = document.querySelector('#todo-input');
 let todoBtn = document.querySelector('#todo-btn');
 let list = document.querySelector('#todo-list');
 let filter = document.querySelector('.filter');
+const fileName = 'todoSave';
 
 //Event Listeners
 todoBtn.addEventListener('click',addItem);
@@ -50,18 +51,17 @@ function removeItem(event){
         function(){
             item.parentElement.remove();
         })
-        let save;
-        if(localStorage.getItem('todoSave') === null){
-            save = [];
-        }else{
-            save = JSON.parse(localStorage.getItem('todoSave'));
-        }
-        localStorage.setItem('todoSave',JSON.stringify(
+        let save = fetchSave();
+        localStorage.setItem(fileName,JSON.stringify(
             save.filter(e=>{
                 return e !== item.parentElement.innerText;
             })
         ));
     }
+}
+
+function fetchSave(){
+    return (localStorage.getItem(fileName) === null) ? [] : localeStorage.getItem(fileName);
 }
 
 function completeItem(event){
@@ -73,7 +73,6 @@ function completeItem(event){
 
 function filterTodo(){
     let items = list.childNodes;
-    console.log(items);
     switch(filter.value){
         case 'all':
             items.forEach(e=>{
@@ -102,23 +101,13 @@ function filterTodo(){
 }
 
 function saveToDo(todo){
-    let save;
-    if(localStorage.getItem('todoSave') === null){
-        save = [];
-    }else{
-        save = JSON.parse(localStorage.getItem('todoSave'));
-    }
+    let save = fetchSave();
     save.push(todo);
-    localStorage.setItem('todoSave',JSON.stringify(save));
+    localStorage.setItem(fileName,JSON.stringify(save));
 }
 
 function updateUI(){
-    let save;
-    if(localStorage.getItem('todoSave') === null){
-        save = [];
-    }else{
-        save = JSON.parse(localStorage.getItem('todoSave'));
-    }
+    let save = fetchSave();
     save.forEach((todo)=>{
         let div = document.createElement('div');
         div.classList.add('todo');
